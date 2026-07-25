@@ -1,45 +1,145 @@
 import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Stars, Text, Float, MeshDistortMaterial } from '@react-three/drei'
+import { 
+  OrbitControls, 
+  Stars, 
+  Text, 
+  Float, 
+  MeshDistortMaterial,
+  MeshTransmissionMaterial,
+  Sparkles,
+  Environment,
+  ContactShadows
+} from '@react-three/drei'
 import { useRef, useState, useEffect } from 'react'
 import * as THREE from 'three'
 import './App.css'
 
-// 3D Background Component
+// Glassmorphic 3D Shape Component (Spline-style)
+function GlassShape({ position, rotation, scale, color, geometry = 'icosahedron' }) {
+  const meshRef = useRef()
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      const t = state.clock.elapsedTime
+      meshRef.current.rotation.x = Math.sin(t * 0.3) * 0.2 + rotation[0]
+      meshRef.current.rotation.y = Math.cos(t * 0.2) * 0.2 + rotation[1]
+      meshRef.current.rotation.z = Math.sin(t * 0.15) * 0.1 + rotation[2]
+    }
+  })
+
+  return (
+    <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.4}>
+      <mesh ref={meshRef} position={position} scale={scale}>
+        {geometry === 'icosahedron' && <icosahedronGeometry args={[1, 1]} />}
+        {geometry === 'sphere' && <sphereGeometry args={[0.8, 32, 32]} />}
+        {geometry === 'torus' && <torusGeometry args={[0.7, 0.25, 24, 32]} />}
+        {geometry === 'octahedron' && <octahedronGeometry args={[1, 0]} />}
+        
+        <MeshTransmissionMaterial
+          backside
+          samples={6}
+          thickness={0.8}
+          roughness={0.15}
+          transmission={0.95}
+          ior={1.6}
+          chromaticAberration={0.15}
+          anisotropy={0.3}
+          distortion={0.4}
+          distortionScale={0.6}
+          temporalDistortion={0.2}
+          color={color}
+        />
+      </mesh>
+    </Float>
+  )
+}
+
+// Animated 3D Name Component
+function HeroName3D() {
+  const groupRef = useRef()
+  const [hovered, setHovered] = useState(false)
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      const t = state.clock.elapsedTime
+      groupRef.current.rotation.y = Math.sin(t / 3) * 0.05
+      groupRef.current.position.y = Math.sin(t / 2) * 0.1
+    }
+  })
+
+  return (
+    <group ref={groupRef}>
+      <Float speed={1} rotationIntensity={0.1} floatIntensity={0.2}>
+        <Text
+          font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
+          fontSize={2.8}
+          letterSpacing={-0.08}
+          fontWeight={800}
+          anchorX="center"
+          anchorY="middle"
+          onPointerOver={() => setHovered(true)}
+          onPointerOut={() => setHovered(false)}
+        >
+          SHIVENDRA
+          <meshStandardMaterial 
+            color={hovered ? "#64ffda" : "#ffffff"} 
+            emissive={hovered ? "#64ffda" : "#000000"}
+            emissiveIntensity={hovered ? 0.8 : 0}
+            roughness={0.1}
+            metalness={0.9}
+          />
+        </Text>
+      </Float>
+      
+      <Float speed={0.8} rotationIntensity={0.05} floatIntensity={0.15} position={[0, -1.3, 0]}>
+        <Text
+          font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
+          fontSize={1.3}
+          letterSpacing={0.15}
+          fontWeight={500}
+          anchorX="center"
+          anchorY="middle"
+          color="#a8b2d1"
+        >
+          KUMAR
+        </Text>
+      </Float>
+    </group>
+  )
+}
+
+// 3D Background Scene with Spline aesthetics
 function Scene() {
   return (
     <>
-      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} color="#ff6b6b" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4ecdc4" />
+      <Stars radius={150} depth={70} count={8000} factor={5} saturation={0} fade speed={0.8} />
+      <Sparkles count={150} scale={14} size={5} speed={0.3} opacity={0.6} color="#64ffda" />
       
-      <Float speed={2} rotationIntensity={1} floatIntensity={1}>
-        <mesh position={[-5, 2, -5]}>
-          <icosahedronGeometry args={[1, 0]} />
-          <MeshDistortMaterial color="#ff6b6b" distort={0.4} speed={2} roughness={0.2} metalness={0.8} />
-        </mesh>
-      </Float>
+      <ambientLight intensity={0.6} />
+      <spotLight position={[15, 15, 10]} angle={0.2} penumbra={1} intensity={1.5} castShadow />
+      <pointLight position={[-15, -10, -10]} intensity={0.8} color="#64ffda" />
+      <pointLight position={[10, 10, -5]} intensity={0.6} color="#ff0080" />
       
-      <Float speed={1.5} rotationIntensity={1.5} floatIntensity={1.2}>
-        <mesh position={[5, -2, -3]}>
-          <torusGeometry args={[1, 0.3, 16, 32]} />
-          <MeshDistortMaterial color="#4ecdc4" distort={0.3} speed={1.5} roughness={0.2} metalness={0.8} />
-        </mesh>
-      </Float>
+      {/* Glassmorphic floating shapes */}
+      <GlassShape position={[-6, 3, -8]} rotation={[0.3, 0.2, 0.1]} scale={3} color="#4facfe" geometry="icosahedron" />
+      <GlassShape position={[6, -3, -7]} rotation={[-0.2, -0.3, 0.15]} scale={3.5} color="#00f2fe" geometry="sphere" />
+      <GlassShape position={[-5, -4, -6]} rotation={[0.15, -0.25, 0.2]} scale={2.2} color="#64ffda" geometry="octahedron" />
+      <GlassShape position={[5, 4, -9]} rotation={[-0.25, 0.15, -0.1]} scale={2.8} color="#ff0080" geometry="torus" />
+      <GlassShape position={[0, 5, -10]} rotation={[0.1, 0.1, 0]} scale={2} color="#ffe66d" geometry="icosahedron" />
       
-      <Float speed={1.8} rotationIntensity={1.2} floatIntensity={0.8}>
-        <mesh position={[-4, -3, -6]}>
-          <octahedronGeometry args={[1.2]} />
-          <MeshDistortMaterial color="#ffe66d" distort={0.5} speed={1.8} roughness={0.2} metalness={0.8} />
-        </mesh>
-      </Float>
+      {/* 3D Name in center */}
+      <HeroName3D />
       
-      <Float speed={2.2} rotationIntensity={0.8} floatIntensity={1.5}>
-        <mesh position={[4, 3, -4]}>
-          <sphereGeometry args={[0.8, 32, 32]} />
-          <MeshDistortMaterial color="#ff9ff3" distort={0.6} speed={2.2} roughness={0.2} metalness={0.8} />
-        </mesh>
-      </Float>
+      <ContactShadows 
+        position={[0, -4, 0]} 
+        opacity={0.5} 
+        scale={25} 
+        blur={2.5} 
+        far={5} 
+        color="#000000" 
+      />
+      
+      <Environment preset="city" />
     </>
   )
 }
@@ -88,9 +188,16 @@ function App() {
   return (
     <>
       <div className="canvas-container">
-        <Canvas camera={{ position: [0, 0, 8], fov: 75 }}>
+        <Canvas camera={{ position: [0, 0, 12], fov: 50 }}>
           <Scene />
-          <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
+          <OrbitControls 
+            enableZoom={false} 
+            enablePan={false}
+            autoRotate 
+            autoRotateSpeed={0.3}
+            minPolarAngle={Math.PI / 2.5}
+            maxPolarAngle={Math.PI / 1.8}
+          />
         </Canvas>
       </div>
       
@@ -98,8 +205,10 @@ function App() {
         {/* Hero Section */}
         <Section id="hero" color="transparent">
           <div className="hero-content">
-            <h1 className="glitch" data-text="Shivendra Kumar">Shivendra Kumar</h1>
-            <p className="subtitle">BTech Computer Science Student | DevOps Enthusiast | Web Developer</p>
+            <h1 className="hero-greeting">Hello, I'm</h1>
+            <p className="hero-description">
+              DevOps Engineer | Full Stack Developer | Cloud Enthusiast
+            </p>
             <div className="contact-info">
               <p>📧 shivendra9795kumar@gmail.com</p>
               <p>📱 +91 8052758722</p>

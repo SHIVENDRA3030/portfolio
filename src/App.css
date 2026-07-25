@@ -48,6 +48,82 @@ body {
   margin: 0 auto;
 }
 
+/* Hero Section Styles */
+.hero-content {
+  text-align: center;
+  padding-top: 80vh;
+  position: relative;
+  z-index: 10;
+}
+
+.hero-greeting {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #a8b2d1;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  color: #64ffda;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+.contact-info {
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.contact-info p {
+  font-size: 1rem;
+  color: #8892b0;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #64ffda 0%, #4facfe 100%);
+  color: #0f172a;
+  box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+}
+
+.btn.primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(100, 255, 218, 0.5);
+}
+
+.btn.secondary {
+  background: transparent;
+  color: #64ffda;
+  border-color: #64ffda;
+}
+
+.btn.secondary:hover {
+  background: rgba(100, 255, 218, 0.1);
+  transform: translateY(-3px);
+}
+
 /* Hero Section */
 .hero-content {
   text-align: center;
